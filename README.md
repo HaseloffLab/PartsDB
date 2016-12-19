@@ -83,6 +83,7 @@ session = partsdb.Session()
 query = session.query(Gene).first()
 session.close()
 ```
+
 5. Accessing record information
 
 ``` python
