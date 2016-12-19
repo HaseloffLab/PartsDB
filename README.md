@@ -53,13 +53,11 @@ Then, communication with your database is easy as:
 from partsdb.partsdb import PartsDB
 from tables import *
 ```
-
 2.	Creating a connection to your database
 ``` python
 partsdb = PartsDB('postgresql:///dbname', clean = True, Base = Base)
 ```
 Where `dbname` is a name of the database you have created. The `clean = True` flag erases all rows in all entries.
-
 3.	Adding some parts
 ``` python
 promoter 	= partsdb.addPart('promoter', seq = "TTACGTA")
@@ -72,14 +70,12 @@ partsdb.commit()
 ```
 
 Note, that the `seq` column is defined in `PartsMixIn` in system/Tables.py. The `commit()` is essential for new records to be added to the databse.
-
 4.	Querying the databse
 ``` python
 session = partsdb.Session()
 query = session.query(Gene).first()
 session.close()
 ```
-
 5.	Accessing record information
 ``` python
 print query.dbid
