@@ -14,7 +14,7 @@ class PlantPopulator(Populator):
 
 	def _locationToCoordinates(self, location):
 		if isinstance(location, CompoundLocation):
-			return ";".join( [ "{0},{1},1".format( part.start, part.end ) for part in location.parts ] )
+			return ";".join( [ "{0},{1},1".format( part.start, part.end ) for part in sorted(location.parts, key = lambda part: part.start) ] )
 
 		elif isinstance(location, FeatureLocation):
 			return  "{0},{1},1".format( location.start, location.end )
