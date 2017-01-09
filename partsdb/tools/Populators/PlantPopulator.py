@@ -111,49 +111,26 @@ class PlantPopulator(Populator):
 					
 					rcm = RangeCoordinateMapper(exons, len(gene), gene.annotations["startOffset"], gene.annotations["endOffset"] )
 					
-					try:
-						location = rcm.rc2g(pepStart, pepEnd, pepStrand)	
-					except:
-						continue
+					if rcm.startOffset + 1 > pepStart or len(exons) < pepEnd:
+						continue   
+
+					location = rcm.rc2g(pepStart, pepEnd, pepStrand)	
+
+
 					cdsFeature = SeqFeature(type = 'cds', location = location )
 
-					print "Pep: ", pepStart, pepEnd, pepStrand
-					print "Location: ", location
+					protSeq = cdsFeature.extract(gene.seq).translate()
+					
+					if len(protSeq) == 0:
+						continue
+
+					if not (protSeq[0] == 'M' and protSeq.find('*') == len(protSeq)-1):
+						continue
 
 					gene.features.append(cdsFeature)
 
-
-					# Annotating UTRs - OLD
-					# if gene.annotations["startOffset"] + 1 <= pepStart - 1:
-					# 	location = rcm.rc2g(gene.annotations["startOffset"] + 1, pepStart - 1, cdsFeature.location.strand)
-					# 	utrType  = 'utr5' if cdsFeature.location.strand == 1 else 'utr3'
-					# 	utrRFeature = SeqFeature(type = utrType, location = location)
-					# else:
-					# 	utrRFeature = None
-
-					# if pepEnd + 1 <= len(exons) + gene.annotations["startOffset"]:
-					# 	location = rcm.rc2g(pepEnd + 1, len(exons) + gene.annotations["startOffset"], cdsFeature.location.strand)
-					# 	utrType  = 'utr5' if cdsFeature.location.strand == -1 else 'utr3'
-					# 	utrLFeature = SeqFeature(type = utrType, location = location)
-					# else:
-					# 	utrL = None
-
-					# utrLFeature = SeqFeature(type = 'utrL', location = location)
-
-					# if cdsFeature.location.strand == exons.location.strand:
-					# 	utrRFeature.type = 'utr5'
-					# 	utrLFeature.type = 'utr3'
-					# else:
-					# 	utrRFeature.type = 'utr3'
-					# 	utrLFeature.type = 'utr5'
-
-					# gene.features.append(utrRFeature)
-					# gene.features.append(utrLFeature)
-
-					# Annotating UTRs - NEW
-
 					if pepStart > 1:
-						location = rcm.rc2g( 1, pepStart-1, pepStrand )
+						location = rcm.rc2g( rcm.startOffset + 1, pepStart-1, pepStrand )
 						utrType = 'utr5' if pepStrand == 1 else 'utr3'
 						utrLFeature = SeqFeature( type = utrType, location = location )
 					else:
@@ -258,7 +235,6 @@ class PlantPopulator(Populator):
 			# if not terminator:
 			# 	terminator = self.db.addPart('terminator', seq = parts['terminator']['seq'], locus = locus, locusStrand = strand )
 
-
 			cds  = self.db.addPart('cds', seq = parts['cds']['seq'], coordinates = parts['cds']['coordinates'] )
 			
 			newGene = self.db.addPart('gene', cds = cds, promoter = promoter, terminator = terminator, locus = locus, locusStrand = strand)
@@ -269,6 +245,5 @@ class PlantPopulator(Populator):
 			if 'utr3' in parts:
 				utr3 = self.db.addPart('utr3', seq = parts['utr3']['seq'], coordinates = parts['utr3']['coordinates'] )
 				newGene.utr3 = utr3
-			print newGene.id
 
 		self.db.commit()	
