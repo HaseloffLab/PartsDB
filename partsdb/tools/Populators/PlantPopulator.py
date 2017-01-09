@@ -213,7 +213,7 @@ class PlantPopulator(Populator):
 						location = feature.location._flip( len(gene) )
 						location = location._shift( -location.start )
 						seq = str(gene.seq[ feature.location.start : feature.location.end ].reverse_complement())
-					parts[ feature.type ] = { "seq" : seq, "coordinates" : self._locationToCoordinates(location) }
+					parts[ feature.type ] = { "seq" : seq.upper(), "coordinates" : self._locationToCoordinates(location) }
 				# print feature.type, location, seq
 			# print parts.keys()
 			
