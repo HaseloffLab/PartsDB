@@ -13,6 +13,9 @@ class RangeCoordinateMapper(CoordinateMapper):
 			self.strand = -1
 		else:
 			self.strand = 1
+
+		print "r2c parts:", selist.location.parts
+
 		super(RangeCoordinateMapper, self).__init__(selist)
 		self.length = length
 		self.startOffset = startOffset
