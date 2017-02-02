@@ -80,9 +80,9 @@ class PlantPopulator(Populator):
 				pepStart = int(substring.split(':')[1].split('-')[0])
 				pepEnd   = int(substring.split(':')[1].split('-')[1].split('(')[0] )
 				pepStrand = substring.split('(')[1][0]
-				# print 'pepStrand', pepStrand
+				 print 'pepStrand', pepStrand
 				
-				# print pepName
+				 print pepName
 
 				if pepStrand == '-':
 					pepStrand = -1
@@ -114,8 +114,10 @@ class PlantPopulator(Populator):
 					if rcm.startOffset + 1 > pepStart or len(exons) < pepEnd:
 						continue   
 					
-					print transcriptName, pepStart, pepEnd, pepStrand 
-					
+					print "Exons: " exons
+					print "Transcript: ", transcriptName
+					print "Coordinates: ", pepStart, pepEnd, pepStrand 
+					print "Offsets: ", gene.annotations["startOffset"], gene.annotations["endOffset"]
 					location = rcm.rc2g(pepStart, pepEnd, pepStrand)	
 
 
