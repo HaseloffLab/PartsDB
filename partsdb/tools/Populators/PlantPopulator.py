@@ -80,9 +80,9 @@ class PlantPopulator(Populator):
 				pepStart = int(substring.split(':')[1].split('-')[0])
 				pepEnd   = int(substring.split(':')[1].split('-')[1].split('(')[0] )
 				pepStrand = substring.split('(')[1][0]
-				 print 'pepStrand', pepStrand
+				print 'pepStrand', pepStrand
 				
-				 print pepName
+				print pepName
 
 				if pepStrand == '-':
 					pepStrand = -1
