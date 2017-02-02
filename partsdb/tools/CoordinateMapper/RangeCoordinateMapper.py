@@ -4,13 +4,15 @@ from Bio.SeqRecord import SeqRecord
 
 class RangeCoordinateMapper(CoordinateMapper):
 	def __init__(self, selist, length, startOffset, endOffset):
-		selist.location.parts.sort(key = lambda x: x.start)
-
+		
 		if selist.strand == -1:
 			selist = selist._flip(length)
 			self.strand = -1
 		else:
 			self.strand = 1
+
+		selist.location.parts.sort(key = lambda x: x.start)
+
 		super(RangeCoordinateMapper, self).__init__(selist)
 		self.length = length
 		self.startOffset = startOffset
