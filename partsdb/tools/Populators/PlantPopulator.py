@@ -114,7 +114,7 @@ class PlantPopulator(Populator):
 					if rcm.startOffset + 1 > pepStart or len(exons) < pepEnd:
 						continue   
 					
-					print "Exons: " exons
+					print "Exons: ", exons
 					print "Transcript: ", transcriptName
 					print "Coordinates: ", pepStart, pepEnd, pepStrand 
 					print "Offsets: ", gene.annotations["startOffset"], gene.annotations["endOffset"]
