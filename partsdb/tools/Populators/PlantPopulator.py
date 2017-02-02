@@ -118,6 +118,7 @@ class PlantPopulator(Populator):
 					print "Transcript: ", transcriptName
 					print "Coordinates: ", pepStart, pepEnd, pepStrand 
 					print "Offsets: ", gene.annotations["startOffset"], gene.annotations["endOffset"]
+					
 					location = rcm.rc2g(pepStart, pepEnd, pepStrand)	
 
 

@@ -25,6 +25,9 @@ class RangeCoordinateMapper(CoordinateMapper):
 		start = self.c2g(start - self.startOffset, dialect = 'GenBank').to_genbank()
 		end   = self.c2g(end - self.startOffset, dialect = 'GenBank').to_genbank()
 		
+		print "rc2g Start/End: ", start, end
+		print "rc2g exons: " self._exons.parts
+
 		for exon in sorted(self._exons.parts, key = lambda x: x.start):
 			eStart = int(exon.start) + 1
 			eEnd   = int(exon.end)
@@ -47,7 +50,9 @@ class RangeCoordinateMapper(CoordinateMapper):
 			locations.sort(key = lambda x: x.start)
 		if strand == -1:
 			locations.sort(key = lambda x: x.start, reverse = True)
-		print "Locations: ", locations
+		
+		print "rc2g Locations: ", locations
+		
 		if len(locations) == 1:
 			location = locations[0]
 		else:
