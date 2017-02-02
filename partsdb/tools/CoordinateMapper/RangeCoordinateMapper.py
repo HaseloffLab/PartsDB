@@ -47,7 +47,7 @@ class RangeCoordinateMapper(CoordinateMapper):
 			locations.sort(key = lambda x: x.start)
 		if strand == -1:
 			locations.sort(key = lambda x: x.start, reverse = True)
-
+		print "Locations: ", locations
 		if len(locations) == 1:
 			location = locations[0]
 		else:
