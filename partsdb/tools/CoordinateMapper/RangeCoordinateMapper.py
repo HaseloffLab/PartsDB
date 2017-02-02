@@ -6,6 +6,8 @@ class RangeCoordinateMapper(CoordinateMapper):
 	def __init__(self, selist, length, startOffset, endOffset):
 		selist.location.parts.sort(key = lambda x: x.start)
 
+		print "r2c parts:", selist.location.parts
+
 		if selist.strand == -1:
 			selist = selist._flip(length)
 			self.strand = -1
@@ -21,7 +23,10 @@ class RangeCoordinateMapper(CoordinateMapper):
 
 		locations = []
 
-		
+		print "rc2g Start/End: ", start, end, strand
+		print "rc2g Offset: ",  self.startOffset
+		print "rc2g strand: ",  self.strand
+
 		start = self.c2g(start - self.startOffset, dialect = 'GenBank').to_genbank()
 		end   = self.c2g(end - self.startOffset, dialect = 'GenBank').to_genbank()
 		
