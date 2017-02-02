@@ -113,7 +113,9 @@ class PlantPopulator(Populator):
 					
 					if rcm.startOffset + 1 > pepStart or len(exons) < pepEnd:
 						continue   
-
+					
+					print transcriptName, pepStart, pepEnd, pepStrand 
+					
 					location = rcm.rc2g(pepStart, pepEnd, pepStrand)	
 
 
