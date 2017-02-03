@@ -6,38 +6,36 @@ class BlastAnnotator(Annotator):
 		self._annotate(db, kwargs['fileName'])
 		
 	def _annotate(self, db, fileName):
-		inFile = open(fileName)
+		
 		hits = {}
-
-		for line in inFile:
-			tabs = line.rstrip().split('\t')
-			
-			names = ["cdsID", "uniID", "qlen", "slen", "qstart", "qend", "tstart", "tend", "qcovs", "pident", "evalue", "proteinName", "origin",  "geneName"]
-
-			data = dict( zip(names, tabs) )
-			data["uniID"] = data["uniID"].split('|')[2]
-
-			name = "{0}_{1}".format(data["cdsID"], data["uniID"])
-
-			if not name in hits:
-				hits[name] = self.cls()
-				hits[name].uniID				= data["uniID"]
-				hits[name].coverage				= data["qcovs"]
-				hits[name].qLen	 				= data["qlen"]
-				hits[name].tLen	 				= data["slen"]
-				hits[name].coordinates			= ""
-				hits[name].eVal	 				= float(data["evalue"])
-				hits[name].proteinName	 		= data["proteinName"]
-				hits[name].geneName	 			= data["geneName"]
-				hits[name].origin	 			= data["origin"]
+		with open(fileName) as inFile:
+			for line in inFile:
+				tabs = line.rstrip().split('\t')
 				
-			
-			hits[name].eVal = min( hits[name].eVal, float(data["evalue"]) )
+				names = ["cdsID", "uniID", "qlen", "slen", "qstart", "qend", "tstart", "tend", "qcovs", "pident", "evalue", "proteinName", "origin",  "geneName"]
 
-			coordinates = "{0}:{1},{2}:{3},{4};".format(data["qstart"], data["qend"], data["tstart"], data["tend"], data["pident"])
-			hits[name].coordinates += coordinates
+				data = dict( zip(names, tabs) )
+				data["uniID"] = data["uniID"].split('|')[2]
 
-		inFile.close()
+				name = "{0}_{1}".format(data["cdsID"], data["uniID"])
+
+				if not name in hits:
+					hits[name] = self.cls()
+					hits[name].uniID				= data["uniID"]
+					hits[name].coverage				= data["qcovs"]
+					hits[name].qLen	 				= data["qlen"]
+					hits[name].tLen	 				= data["slen"]
+					hits[name].coordinates			= ""
+					hits[name].eVal	 				= float(data["evalue"])
+					hits[name].proteinName	 		= data["proteinName"]
+					hits[name].geneName	 			= data["geneName"]
+					hits[name].origin	 			= data["origin"]
+					
+				
+				hits[name].eVal = min( hits[name].eVal, float(data["evalue"]) )
+
+				coordinates = "{0}:{1},{2}:{3},{4};".format(data["qstart"], data["qend"], data["tstart"], data["tend"], data["pident"])
+				hits[name].coordinates += coordinates
 
 		for hitName, hit in hits.iteritems():
 			# print hitName
