@@ -8,6 +8,8 @@ class BlastAnnotator(Annotator):
 	def _annotate(self, db, fileName):
 		
 		hits = {}
+		session = db.Session()
+
 		with open(fileName) as inFile:
 			for line in inFile:
 				tabs = line.rstrip().split('\t')
@@ -17,37 +19,34 @@ class BlastAnnotator(Annotator):
 				data = dict( zip(names, tabs) )
 				data["uniID"] = data["uniID"].split('|')[2]
 
-				name = "{0}_{1}".format(data["cdsID"], data["uniID"])
+				# name = "{0}_{1}".format(data["cdsID"], data["uniID"])
 
-				if not name in hits:
-					hits[name] = self.cls()
-					hits[name].uniID				= data["uniID"]
-					hits[name].coverage				= data["qcovs"]
-					hits[name].qLen	 				= data["qlen"]
-					hits[name].tLen	 				= data["slen"]
-					hits[name].coordinates			= ""
-					hits[name].eVal	 				= float(data["evalue"])
-					hits[name].proteinName	 		= data["proteinName"]
-					hits[name].geneName	 			= data["geneName"]
-					hits[name].origin	 			= data["origin"]
-					
-				
-				hits[name].eVal = min( hits[name].eVal, float(data["evalue"]) )
+				cds = session.query(self.cls.__targetclass__).filter(self.cls.__targetclass__.dbid == data["cdsID"]).first()
+
+				if not cds:
+					print "Failed to locate {0}".format(cds.dbid)
+					continue
+
+				hit = session.query(self.cls).filter(self.cls.uniID == data["uniID"])\
+											.filter(self.cls.targetID == cds.id).first()
+
+				if not hit:
+					hit = self.cls()
+					hit.uniID				= data["uniID"]
+					hit.coverage			= data["qcovs"]
+					hit.qLen	 			= data["qlen"]
+					hit.tLen	 			= data["slen"]
+					hit.coordinates			= ""
+					hit.eVal	 			= float(data["evalue"])
+					hit.proteinName	 		= data["proteinName"]
+					hit.geneName	 		= data["geneName"]
+					hit.origin	 			= data["origin"]
+					hit.target 				= cds
+					session.add(hit)
+
+
+				hit.eVal = min( hit.eVal, float(data["evalue"]) )
 
 				coordinates = "{0}:{1},{2}:{3},{4};".format(data["qstart"], data["qend"], data["tstart"], data["tend"], data["pident"])
-				hits[name].coordinates += coordinates
-
-		for hitName, hit in hits.iteritems():
-			# print hitName
-			cdsID = hitName.split('_')[0]
-			uniID = hitName.split('_')[1]
-
-			cds = db.session.query(self.cls.__targetclass__).filter(self.cls.__targetclass__.dbid == cdsID).first()
-
-			if cds:
-				hit.target = cds
-				db.session.add(hit)
-			else:
-				print "Failed to locate {0}".format(hitName.split('_')[0])
-		db.commit()
-		inFile.close()
+				hit.coordinates += coordinates
+		session.commit()
