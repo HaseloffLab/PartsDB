@@ -4,7 +4,7 @@ from Bio.SeqRecord import SeqRecord
 
 class RangeCoordinateMapper(CoordinateMapper):
 	def __init__(self, selist, length, startOffset, endOffset):
-		
+
 		if selist.strand == -1:
 			selist = selist._flip(length)
 			self.strand = -1
@@ -12,6 +12,8 @@ class RangeCoordinateMapper(CoordinateMapper):
 			self.strand = 1
 
 		selist.location.parts.sort(key = lambda x: x.start)
+
+		print "Selist: ", selist.location.parts
 
 		super(RangeCoordinateMapper, self).__init__(selist)
 		self.length = length
@@ -26,7 +28,7 @@ class RangeCoordinateMapper(CoordinateMapper):
 		
 		start = self.c2g(start - self.startOffset, dialect = 'GenBank').to_genbank()
 		end   = self.c2g(end - self.startOffset, dialect = 'GenBank').to_genbank()
-		
+
 		for exon in sorted(self._exons.parts, key = lambda x: x.start):
 			eStart = int(exon.start) + 1
 			eEnd   = int(exon.end)
@@ -44,18 +46,21 @@ class RangeCoordinateMapper(CoordinateMapper):
 					break
 				else:
 					locations.append( FeatureLocation(start-1, eEnd, strand) )
-		
-		if strand == 1:
-			locations.sort(key = lambda x: x.start)
-		if strand == -1:
-			locations.sort(key = lambda x: x.start, reverse = True)
+
 
 		if len(locations) == 1:
 			location = locations[0]
 		else:
 			location = CompoundLocation(locations)
 
-		if self.strand == -1:
-			return location._flip(self.length)
+		print "RCM location: ", location
 
-		return location
+		if self.strand == -1:
+			location = location._flip(self.length)
+
+		if location.strand == -1:
+			location.parts.sort(key = lambda x: x.start, reverse = True)
+			return location
+		else:
+			location.parts.sort(key = lambda x: x.start)
+			return location
