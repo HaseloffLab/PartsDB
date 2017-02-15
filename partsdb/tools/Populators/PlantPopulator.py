@@ -220,7 +220,7 @@ class PlantPopulator(Populator):
 
 			cds  = self.db.addPart('cds', seq = parts['cds']['seq'], coordinates = parts['cds']['coordinates'] )
 			
-			newGene = self.db.addPart('gene', cds = cds, promoter = promoter, terminator = terminator, locus = locus, locusStrand = strand)
+			newGene = self.db.addPart('gene', cds = cds, promoter = promoter, terminator = terminator, locus = locus, locusStrand = strand, transcriptName = geneName)
 
 			if 'utr5' in parts:
 				utr5 = self.db.addPart('utr5', seq = parts['utr5']['seq'], coordinates = parts['utr5']['coordinates'] )
