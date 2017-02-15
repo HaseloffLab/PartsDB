@@ -23,7 +23,6 @@ class PlantPopulator(Populator):
 		if isinstance(args[1],list):
 			self.populateFromList(args[0])
 		elif isinstance(args[1], str):
-			# print args
 			self.populateFromFile(*args)
 
 	def populateFromFile(self, transMapFileName, transFileName, proteinFileName, genomeFileName):
@@ -71,6 +70,7 @@ class PlantPopulator(Populator):
 		transFile.close()
 
 		genes = {}
+ 		bad = 0
 
 		for line in proteinFile:
 			if line.startswith('>'):
@@ -80,9 +80,6 @@ class PlantPopulator(Populator):
 				pepStart = int(substring.split(':')[1].split('-')[0])
 				pepEnd   = int(substring.split(':')[1].split('-')[1].split('(')[0] )
 				pepStrand = substring.split('(')[1][0]
-				# print 'pepStrand', pepStrand
-				
-				# print pepName
 
 				if pepStrand == '-':
 					pepStrand = -1
@@ -104,11 +101,11 @@ class PlantPopulator(Populator):
 					gene = gene[cutStart:cutEnd]
 					gene.annotations = transcript.annotations
 					gene.annotations["LocusCoordinates"] = "{0}:{1}-{2}".format( gene.annotations["Locus"], cutStart, cutEnd )
-		
+					
+
 					# Annotating CDS
 					exons = gene.features[0]
-					# print transcriptName
-					
+
 					rcm = RangeCoordinateMapper(exons, len(gene), gene.annotations["startOffset"], gene.annotations["endOffset"] )
 					
 					if rcm.startOffset + 1 > pepStart or len(exons) < pepEnd:
@@ -116,15 +113,21 @@ class PlantPopulator(Populator):
 
 					location = rcm.rc2g(pepStart, pepEnd, pepStrand)	
 
+					print "location: ", location
 
 					cdsFeature = SeqFeature(type = 'cds', location = location )
 
 					protSeq = cdsFeature.extract(gene.seq).translate()
 					
+
 					if len(protSeq) == 0:
 						continue
 
 					if not (protSeq[0] == 'M' and protSeq.find('*') == len(protSeq)-1):
+						
+						print "Bad seq:", protSeq
+						bad = bad + 1
+						
 						continue
 
 					gene.features.append(cdsFeature)
@@ -160,11 +163,10 @@ class PlantPopulator(Populator):
 					gene.features.append(rightPart)
 					gene.features.append(leftPart)
 
-
 					genes[pepName] = gene
 
 		proteinFile.close()
-
+		print "BAD: ", bad
 		self.populateFromList(genes)
 
 	def populateFromList(self, genes):
@@ -179,13 +181,6 @@ class PlantPopulator(Populator):
 		Gene 		= self.db.classes['gene']
 
 		for geneName, gene in genes.iteritems():
-			# start = min( [pos for pos in gene.features[0].location] ) + 1 # +1 GenBank notation
-			# stop  = min( [pos for pos in gene.features[0].location] )
-
-			# cutStart = max( 1, start - 3000 )
-			# cutStop  = max( len(gene), stop + 3000 )
-
-			# locusCoordinates = "{0}:{1}-{2}".format( gene.annotations["Locus"], cutStart, cutStop )
 
 			locusCoordinates = gene.annotations["LocusCoordinates"]
 
@@ -214,26 +209,16 @@ class PlantPopulator(Populator):
 						location = location._shift( -location.start )
 						seq = str(gene.seq[ feature.location.start : feature.location.end ].reverse_complement())
 					parts[ feature.type ] = { "seq" : seq.upper(), "coordinates" : self._locationToCoordinates(location) }
-				# print feature.type, location, seq
-			# print parts.keys()
 			
 			promoter = session.query(Promoter).filter( Promoter.id == Gene.promoterID ).\
 								filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
 			if not promoter:
 				promoter = self.db.addPart('promoter', seq = parts['promoter']['seq'])
-			
-			# promoter = session.query(Promoter).filter( Promoter.locusID == locus.id, Promoter.locusStrand == strand ).first()
-			# if not promoter:
-			# 	promoter = self.db.addPart('promoter', seq = parts['promoter']['seq'], locus = locus, locusStrand = strand )
 
 			terminator = session.query(Terminator).filter( Terminator.id == Gene.terminatorID ).\
 								filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
 			if not terminator:
 				terminator = self.db.addPart('terminator', seq = parts['terminator']['seq'])
-			
-			# terminator = session.query(Terminator).filter( Terminator.locusID == locus.id, Terminator.locusStrand == strand ).first()
-			# if not terminator:
-			# 	terminator = self.db.addPart('terminator', seq = parts['terminator']['seq'], locus = locus, locusStrand = strand )
 
 			cds  = self.db.addPart('cds', seq = parts['cds']['seq'], coordinates = parts['cds']['coordinates'] )
 			
