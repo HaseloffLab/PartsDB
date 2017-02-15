@@ -13,8 +13,6 @@ class RangeCoordinateMapper(CoordinateMapper):
 
 		selist.location.parts.sort(key = lambda x: x.start)
 
-		print "Selist: ", selist.location.parts
-
 		super(RangeCoordinateMapper, self).__init__(selist)
 		self.length = length
 		self.startOffset = startOffset
@@ -52,8 +50,6 @@ class RangeCoordinateMapper(CoordinateMapper):
 			location = locations[0]
 		else:
 			location = CompoundLocation(locations)
-
-		print "RCM location: ", location
 
 		if self.strand == -1:
 			location = location._flip(self.length)

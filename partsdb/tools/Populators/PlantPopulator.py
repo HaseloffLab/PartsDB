@@ -113,21 +113,19 @@ class PlantPopulator(Populator):
 
 					location = rcm.rc2g(pepStart, pepEnd, pepStrand)	
 
-					print "location: ", location
-
 					cdsFeature = SeqFeature(type = 'cds', location = location )
 
 					protSeq = cdsFeature.extract(gene.seq).translate()
 					
+					if transcriptName in genes:
+						if len( genes[transcriptName].features[0] ) > len(cdsFeature):
+							continue
 
 					if len(protSeq) == 0:
 						continue
 
 					if not (protSeq[0] == 'M' and protSeq.find('*') == len(protSeq)-1):
-						
-						print "Bad seq:", protSeq
 						bad = bad + 1
-						
 						continue
 
 					gene.features.append(cdsFeature)
@@ -163,10 +161,10 @@ class PlantPopulator(Populator):
 					gene.features.append(rightPart)
 					gene.features.append(leftPart)
 
-					genes[pepName] = gene
+					genes[transcriptName] = gene
 
 		proteinFile.close()
-		print "BAD: ", bad
+		print "Number of protein sequences that failed to import: ", bad
 		self.populateFromList(genes)
 
 	def populateFromList(self, genes):
