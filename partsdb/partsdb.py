@@ -6,7 +6,7 @@ from system.Tables import BaseMixIn, Base, Sys
 from system.IDGenerator import nextIDGenerator
 
 
-class PartsDB:
+class PartsDB(object):
 
 	Session 	= sessionmaker()
 	newParts	= []
