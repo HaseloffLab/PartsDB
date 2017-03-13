@@ -5,6 +5,12 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from system.Tables import BaseMixIn, Base, Sys
 from system.IDGenerator import nextIDGenerator
 
+from sqlalchemy.schema import DropTable
+from sqlalchemy.ext.compiler import compiles
+
+@compiles(DropTable, "postgresql")
+def _compile_drop_table(element, compiler, **kwargs):
+    return compiler.visit_drop_table(element) + " CASCADE"
 
 class PartsDB(object):
 

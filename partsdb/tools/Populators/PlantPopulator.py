@@ -208,15 +208,24 @@ class PlantPopulator(Populator):
 						seq = str(gene.seq[ feature.location.start : feature.location.end ].reverse_complement())
 					parts[ feature.type ] = { "seq" : seq.upper(), "coordinates" : self._locationToCoordinates(location) }
 			
-			promoter = session.query(Promoter).filter( Promoter.id == Gene.promoterID ).\
-								filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
-			if not promoter:
-				promoter = self.db.addPart('promoter', seq = parts['promoter']['seq'])
+			gene = session.query(Gene).filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
 
-			terminator = session.query(Terminator).filter( Terminator.id == Gene.terminatorID ).\
-								filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
-			if not terminator:
+			if gene:
+				promoter 	= gene.promoter
+				terminator 	= gene.terminator
+			else:
+				promoter = self.db.addPart('promoter', seq = parts['promoter']['seq'])
 				terminator = self.db.addPart('terminator', seq = parts['terminator']['seq'])
+				
+			# promoter = session.query(Promoter).filter( Promoter.id == Gene.promoterID ).\
+			# 					filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
+			# if not promoter:
+			# 	promoter = self.db.addPart('promoter', seq = parts['promoter']['seq'])
+
+			# terminator = session.query(Terminator).filter( Terminator.id == Gene.terminatorID ).\
+			# 					filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
+			# if not terminator:
+			# 	terminator = self.db.addPart('terminator', seq = parts['terminator']['seq'])
 
 			cds  = self.db.addPart('cds', seq = parts['cds']['seq'], coordinates = parts['cds']['coordinates'] )
 			
