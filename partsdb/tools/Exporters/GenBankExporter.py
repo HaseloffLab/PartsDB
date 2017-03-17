@@ -24,7 +24,7 @@ class GenBankExporter(Exporter):
 		strand = gene.locusStrand
 
 		if outputFileName:
-			gene = SeqRecord(id = str(gene.dbid).replace('.',''), name = str(gene.name), seq = '' )
+			gene = SeqRecord(id = str(gene.dbid).replace('.',''), name = str(gene.dbid), seq = '' )
 		else:
 			gene = SeqRecord(id = gene.dbid, name = str(gene.name), seq = '' )
 
