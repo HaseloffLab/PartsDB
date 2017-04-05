@@ -5,7 +5,7 @@ from os import path
 
 setup(
 	name = 'PartsDB',
-	version = '0.0.1.dev1',
+	version = '0.1',
 	description='Database of genetic parts',
 	url='https://github.com/HaseloffLab/MarpoDB',
 	author = 'Mihails Delmans',

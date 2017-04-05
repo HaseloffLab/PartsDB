@@ -56,7 +56,7 @@ class PartsDB(object):
 
 	def addPart(self, table, *args, **kwargs):
 		if args:
-			self._addPartFromCls(args[0])
+			return self._addPartFromCls(args[0])
 		else:
 			newPart = self.classes[table](**kwargs)
 			self.session.add(newPart)
@@ -64,6 +64,7 @@ class PartsDB(object):
 
 	def _addPartFromCls(self, part):
 		self.session.add(part)
+		return part
 
 	def commit(self):
 		self.session.commit()
