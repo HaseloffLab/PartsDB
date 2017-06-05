@@ -59,15 +59,23 @@ class PlantPopulator(Populator):
 
 		transMapFile.close()
 
-		for line in transFile:
-			if line.startswith('>'):
-				transcriptName = line.split()[0][1:]
-				if transcriptName in transcripts:
-					length   = int(line.split()[1].split('=')[1])
-					transcripts[transcriptName].annotations["startOffset"] = transcripts[transcriptName].annotations["minTarget"] - 1
-					transcripts[transcriptName].annotations["endOffset"]   = length - transcripts[transcriptName].annotations["maxTarget"]
 
-		transFile.close()
+		transcripRecords = SeqIO.to_dict(SeqIO.parse(transFileName, "fasta"))
+
+		for transcriptName in transcripRecords:
+			if transcriptName in transcripts:
+				length = len(transcripRecords[transcriptName])
+				transcripts[transcriptName].annotations["startOffset"] = transcripts[transcriptName].annotations["minTarget"] - 1
+				transcripts[transcriptName].annotations["endOffset"]   = length - transcripts[transcriptName].annotations["maxTarget"]
+		# for line in transFile:
+		# 	if line.startswith('>'):
+		# 		transcriptName = line.split()[0][1:]
+		# 		if transcriptName in transcripts:
+		# 			length   = int(line.split()[1].split('=')[1])
+		# 			transcripts[transcriptName].annotations["startOffset"] = transcripts[transcriptName].annotations["minTarget"] - 1
+		# 			transcripts[transcriptName].annotations["endOffset"]   = length - transcripts[transcriptName].annotations["maxTarget"]
+
+		# transFile.close()
 
 		genes = {}
  		bad = 0
@@ -118,7 +126,7 @@ class PlantPopulator(Populator):
 					protSeq = cdsFeature.extract(gene.seq).translate()
 					
 					if transcriptName in genes:
-						if len( genes[transcriptName].features[0] ) > len(cdsFeature):
+						if len( genes[transcriptName].features[0] ) >= len(cdsFeature):
 							continue
 
 					if len(protSeq) == 0:
@@ -172,7 +180,6 @@ class PlantPopulator(Populator):
 		assert 'promoter' 	in self.db.classes
 		assert 'terminator' in self.db.classes
 		
-		session 	= self.db.session
 		Locus 		= self.db.classes['locus']
 		Promoter	= self.db.classes['promoter']
 		Terminator	= self.db.classes['terminator']
@@ -182,7 +189,7 @@ class PlantPopulator(Populator):
 
 			locusCoordinates = gene.annotations["LocusCoordinates"]
 
-			locus =  session.query( Locus ).filter( Locus.coordinates == locusCoordinates ).first()
+			locus =  self.db.session.query( Locus ).filter( Locus.coordinates == locusCoordinates ).first()
 			if not locus:
 				locus = self.db.addPart('locus', coordinates = locusCoordinates)
 
@@ -207,26 +214,32 @@ class PlantPopulator(Populator):
 						location = location._shift( -location.start )
 						seq = str(gene.seq[ feature.location.start : feature.location.end ].reverse_complement())
 					parts[ feature.type ] = { "seq" : seq.upper(), "coordinates" : self._locationToCoordinates(location) }
-			
-			promoter = session.query(Promoter).filter( Promoter.id == Gene.promoterID ).\
-								filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
-			if not promoter:
-				promoter = self.db.addPart('promoter', seq = parts['promoter']['seq'])
 
-			terminator = session.query(Terminator).filter( Terminator.id == Gene.terminatorID ).\
-								filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
-			if not terminator:
+
+			gene = self.db.session.query(Gene).filter(Gene.locusID == locus.id, Gene.locusStrand == strand).first()
+
+			if gene:
+				promoter 	= gene.promoter
+				terminator 	= gene.terminator
+				# print 'Found gene ', gene.id
+				if not promoter:
+					print 'No promoter for gene ', gene.id
+					sys.exit()
+			else:
+				promoter = self.db.addPart('promoter', seq = parts['promoter']['seq'])
 				terminator = self.db.addPart('terminator', seq = parts['terminator']['seq'])
+
 
 			cds  = self.db.addPart('cds', seq = parts['cds']['seq'], coordinates = parts['cds']['coordinates'] )
 			
-			newGene = self.db.addPart('gene', cds = cds, promoter = promoter, terminator = terminator, locus = locus, locusStrand = strand, transcriptName = geneName)
+			utr5 = None
+			utr3 = None
 
 			if 'utr5' in parts:
 				utr5 = self.db.addPart('utr5', seq = parts['utr5']['seq'], coordinates = parts['utr5']['coordinates'] )
-				newGene.utr5 = utr5
 			if 'utr3' in parts:
 				utr3 = self.db.addPart('utr3', seq = parts['utr3']['seq'], coordinates = parts['utr3']['coordinates'] )
-				newGene.utr3 = utr3
+
+			newGene = self.db.addPart('gene', cds = cds, promoter = promoter, terminator = terminator, locus = locus, locusStrand = strand, transcriptName = geneName, utr5 = utr5, utr3 = utr3)			
 
 		self.db.commit()	
