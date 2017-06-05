@@ -5,9 +5,10 @@ from os import path
 
 setup(
 	name = 'PartsDB',
-	version = '0.1',
+	version = '0.1.1',
 	description='Database of genetic parts',
 	url='https://github.com/HaseloffLab/MarpoDB',
+	download_ulr = 'https://github.com/HaseloffLab/MarpoDB/archive/0.1.1.tar.gz'
 	author = 'Mihails Delmans',
 	author_email='md656@cam.ac.uk',
 	license = 'GPL',
