@@ -16,7 +16,7 @@ class PfamAnnotator(Annotator):
 				hit = self.cls()
 
 				hit.name = tabs[0]
-				hit.acc = tabs[1]
+				hit.origin = tabs[1]
 				cdsID = tabs[3]
 				hit.eVal = tabs[6]
 				hit.cVal = tabs[11]

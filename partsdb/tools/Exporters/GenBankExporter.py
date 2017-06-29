@@ -17,8 +17,8 @@ class GenBankExporter(Exporter):
 		else:
 			return None
 
-	def export(self, gene, outputFileName=None):
-		self.keys = ['promoter' , 'utr5', 'cds', 'utr3', 'terminator']
+	def export(self, gene, outputFileName=None, keys = ['promoter' , 'utr5', 'cds', 'utr3', 'terminator']):
+		self.keys = keys
 		parts = [  getattr(gene, key) for key in self.keys ]
 		
 		strand = gene.locusStrand

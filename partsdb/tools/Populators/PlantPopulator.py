@@ -7,6 +7,7 @@ from BCBio.GFF import GFFExaminer
 from BCBio import GFF
 from pprint import pprint
 from Bio.SeqFeature import SeqFeature, CompoundLocation, FeatureLocation
+import sys
 
 from ..CoordinateMapper import RangeCoordinateMapper
 
@@ -38,6 +39,8 @@ class PlantPopulator(Populator):
 
 		transcripts = {}
 
+		# Extracting transcript locations
+
 		for record in transMapRecords:
 			for feature in record.features:
 				target = feature.qualifiers["Target"][0]
@@ -62,20 +65,13 @@ class PlantPopulator(Populator):
 
 		transcripRecords = SeqIO.to_dict(SeqIO.parse(transFileName, "fasta"))
 
+		# Getting transcript lengths and setting offset
+
 		for transcriptName in transcripRecords:
 			if transcriptName in transcripts:
 				length = len(transcripRecords[transcriptName])
 				transcripts[transcriptName].annotations["startOffset"] = transcripts[transcriptName].annotations["minTarget"] - 1
 				transcripts[transcriptName].annotations["endOffset"]   = length - transcripts[transcriptName].annotations["maxTarget"]
-		# for line in transFile:
-		# 	if line.startswith('>'):
-		# 		transcriptName = line.split()[0][1:]
-		# 		if transcriptName in transcripts:
-		# 			length   = int(line.split()[1].split('=')[1])
-		# 			transcripts[transcriptName].annotations["startOffset"] = transcripts[transcriptName].annotations["minTarget"] - 1
-		# 			transcripts[transcriptName].annotations["endOffset"]   = length - transcripts[transcriptName].annotations["maxTarget"]
-
-		# transFile.close()
 
 		genes = {}
  		bad = 0
@@ -221,7 +217,6 @@ class PlantPopulator(Populator):
 			if gene:
 				promoter 	= gene.promoter
 				terminator 	= gene.terminator
-				# print 'Found gene ', gene.id
 				if not promoter:
 					print 'No promoter for gene ', gene.id
 					sys.exit()

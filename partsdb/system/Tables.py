@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Float
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
@@ -32,6 +32,13 @@ class AnnotationMixIn(object):
 	@declared_attr
 	def target(cls):
 		return relationship( cls.__targetclass__, enable_typechecks=False )
+
+	origin 			= Column( String(100) )
+	description		= Column( Text )
+	refID			= Column( String(100) )
+	eVal			= Column( Float )
+	start			= Column( Integer )
+	end				= Column( Integer )
 
 class Sys(Base):
 	__tablename__ 	= 'sys'

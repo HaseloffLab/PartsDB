@@ -28,18 +28,19 @@ class BlastAnnotator(Annotator):
 
 				
 				hit = self.cls()
-				hit.uniID					= data["uniID"]
+				hit.refID					= data["uniID"]
 				hit.coverage				= data["qcovs"]
 				hit.qLen	 				= data["qlen"]
 				hit.tLen	 				= data["slen"]
-				hit.coordinates				= ""
+				hit.start					= data["qstart"]
+				hit.end						= data["qend"]
+				hit.tStart					= data["tstart"]
+				hit.tEnd					= data["tend"]
+				hit.identity				= data["pident"]
 				hit.eVal	 				= float(data["evalue"])
-				hit.proteinName	 			= data["proteinName"]
-				hit.geneName	 			= data["geneName"]
+				hit.description	 			= data["proteinName"]
 				hit.origin	 				= data["origin"]
 				hit.eVal 					= float(data["evalue"])
-
-				hit.coordinates = "{0}:{1},{2}:{3},{4}".format(data["qstart"], data["qend"], data["tstart"], data["tend"], data["pident"])
 				
 				cds = db.session.query(self.cls.__targetclass__).filter(self.cls.__targetclass__.dbid == data['cdsID']).first()
 
